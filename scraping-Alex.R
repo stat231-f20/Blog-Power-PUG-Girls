@@ -12,7 +12,7 @@ beyonce_names <- (beyonce_url %>%
                     read_html() %>%
                     html_nodes("a") %>% 
                     html_text
-)
+)[35:309]
 
 ## Lemonade: 157-169
 
@@ -24,15 +24,27 @@ beyonce_names_fix <- beyonce_names %>%
   str_replace_all("'", "") %>% 
   str_replace_all("\\)", "") %>% 
   str_replace_all("\\(", "") %>% 
+  str_replace_all("&", "") %>% 
+  str_replace_all("/", "") %>% 
+  str_replace_all("\\.", "") %>% 
+  str_replace_all("é", "") %>% 
+  str_replace_all("à", "") %>% 
+  str_replace_all("-", "") %>%
+  str_replace_all(",", "") %>%
+  str_replace_all("!", "") %>%
+  str_replace_all("\\?", "") %>%
   tolower() 
 
-beyonce_lemonade_url0 <- paste0(prefix, beyonce_lemonade_fix)
-beyonce_lemonade_url <- paste0(beyonce_lemonade_url0, suffix)
 
-beyonce_songs <- data.frame(name = beyonce_names_lemonade,
+beyonce_url0 <- paste0(prefix, beyonce_names_fix)
+beyonce_url <- paste0(beyonce_url0, suffix)
+
+beyonce_songs <- data.frame(name = beyonce_names,
                             text = NA)
-  
-test <- (beyonce_lemonade_url[5] %>%               
+
+loop_length <- length(beyonce_names)
+
+test <- (beyonce_url[5] %>%               
                     read_html() %>%
                     html_nodes("div") %>% 
                     html_text)[21]
@@ -40,8 +52,8 @@ test <- (beyonce_lemonade_url[5] %>%
 
 
 
-for (i in 1:13){
-  url <- beyonce_lemonade_url[i]
+for (i in 1:loop_length){
+  url <- beyonce_url[i]
   beyonce_songs[i,2] <- tryCatch(
     { 
       (url %>%               
