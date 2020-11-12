@@ -3,7 +3,7 @@ title: "Power PUG Girls"
 author: "Alex, Grace, & Jamie"
 date: "11/10/2020"
 output:
-  rmdformats::readthedown:
+  tufte::tufte_html:
     thumbnails: false
     highlight: NULL
 ---

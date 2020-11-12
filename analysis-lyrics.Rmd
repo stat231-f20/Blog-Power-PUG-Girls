@@ -1,0 +1,18 @@
+---
+title: "analysis-lyrics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+in_path <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-Power-PUG-Girls"
+
+beyonce_lyrics <- read.csv(paste0(in_path,"/beyonce_lyrics.csv"))
+jayZ_lyrics <- read.csv(paste0(in_path,"/jayZ_lyrics.csv"))
+```
+
