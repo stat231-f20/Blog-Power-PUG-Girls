@@ -38,7 +38,8 @@ jayZ_albums <- tribble(
 jayZ_lyrics <- jayZ_albums %>% 
   add_genius(artist, title, type = "album")
 
-out_path <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-PowerPUG-Girls"
+out_path <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-Power-PUG-Girls"
 
 write_csv(x = beyonce_lyrics, path = paste0(out_path,"/beyonce_lyrics.csv"))
 write_csv(x = jayZ_lyrics, path = paste0(out_path,"/jayZ_lyrics.csv"))
+
