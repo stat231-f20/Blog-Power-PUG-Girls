@@ -1,5 +1,5 @@
 ---
-title: "analysis-lyrics"
+title: "Analysis of Lyrics"
 output: html_document
 ---
 
@@ -12,7 +12,199 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 in_path <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-Power-PUG-Girls"
 
-beyonce_lyrics <- read.csv(paste0(in_path,"/beyonce_lyrics.csv"))
-jayZ_lyrics <- read.csv(paste0(in_path,"/jayZ_lyrics.csv"))
+beyonce_lyrics <- read.csv(paste0(in_path,"/beyonce_lyrics.csv")) %>% 
+  mutate(lyric = as.character(lyric)) %>% 
+  rename(album = title) %>% 
+jayZ_lyrics <- read.csv(paste0(in_path,"/jayZ_lyrics.csv")) %>% 
+  mutate(lyric = as.character(lyric)) %>% 
+  rename(album = title)
+
+data(stop_words)
 ```
+
+```{r} 
+# Extract Unigrams from all songs, and from Lemonade / 4:44
+
+beyonce_ngrams <- beyonce_lyrics %>% 
+  unnest_tokens(output = unigram, input = lyric) %>% 
+  anti_join(stop_words, by = c("unigram" = "word")) %>% 
+  na.omit()
+
+jayZ_ngrams <- jayZ_lyrics %>% 
+  unnest_tokens(output = unigram, input = lyric) %>% 
+  anti_join(stop_words, by = c("unigram" = "word")) %>% 
+  na.omit()
+
+beyonce_ngrams_lemonade <- beyonce_ngrams %>% 
+  filter(album == "Lemonade")
+
+jayZ_ngrams_444 <- jayZ_ngrams %>% 
+  filter(album == "4:44")
+```
+
+```{r} 
+# Extract Bigrams from all songs, and from Lemonade / 4:44
+
+beyonce_bigrams <- beyonce_lyrics %>% 
+  unnest_tokens(output = bigram, input = lyric, token = "ngrams", n = 2) %>% 
+  mutate(firstWord = sub(" .*", "", bigram),
+        secondWord = sub(".* ", "", bigram)) %>%
+  anti_join(stop_words, by = c("firstWord" = "word")) %>%
+  anti_join(stop_words, by = c("secondWord" = "word")) %>% 
+  na.omit()
+
+jayZ_bigrams <- jayZ_lyrics %>% 
+  unnest_tokens(output = bigram, input = lyric, token = "ngrams", n = 2) %>% 
+  mutate(firstWord = sub(" .*", "", bigram),
+        secondWord = sub(".* ", "", bigram)) %>%
+  anti_join(stop_words, by = c("firstWord" = "word")) %>%
+  anti_join(stop_words, by = c("secondWord" = "word")) %>% 
+  na.omit()
+
+beyonce_bigrams_lemonade <- beyonce_bigrams %>% 
+  filter(album == "Lemonade")
+
+jayZ_bigrams_444 <- jayZ_bigrams %>% 
+  filter(album == "4:44")
+```
+
+```{r}
+# Frequencies
+
+beyonce_ngrams_f <- beyonce_ngrams %>% 
+  count(unigram, sort = TRUE) 
+
+jayZ_ngrams_f <- jayZ_ngrams %>% 
+  count(unigram, sort = TRUE) 
+
+beyonce_ngrams_lemonade_f <- beyonce_ngrams_lemonade %>% 
+  count(unigram, sort = TRUE) 
+
+jayZ_ngrams_444_f <- jayZ_ngrams_444 %>% 
+  count(unigram, sort = TRUE) 
+
+beyonce_bigrams_f <- beyonce_bigrams %>% 
+  count(bigram, sort = TRUE) 
+
+jayZ_bigrams_f <- jayZ_bigrams %>% 
+  count(bigram, sort = TRUE) 
+
+beyonce_bigrams_lemonade_f <- beyonce_bigrams_lemonade %>% 
+  count(bigram, sort = TRUE) 
+
+jayZ_bigrams_444_f <- jayZ_bigrams_444 %>% 
+  count(bigram, sort = TRUE) 
+
+```
+
+```{r}
+# Remove n-word from visualisations
+
+# I did this right before visualisation
+#   as to perserve the original data 
+#   and to avoid potential errors with "*" characters. 
+
+jayZ_ngrams_f2 <- jayZ_ngrams_f %>% 
+  mutate(unigram = case_when(unigram == "nigga" ~ "n***a",
+                             unigram == "niggas" ~ "n***as",
+                             T ~ unigram))
+
+
+jayZ_ngrams_444_f2 <- jayZ_ngrams_444_f %>% 
+  mutate(unigram = case_when(unigram == "nigga" ~ "n***a",
+                             unigram == "niggas" ~ "n***as",
+                             T ~ unigram))
+```
+
+```{r}
+# Beyonce Visualisations
+
+beyonce_ngrams_f %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in all Beyoncé Songs"
+    ) +
+  guides(color = "none", fill = "none") 
+
+beyonce_ngrams_lemonade_f %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in \"Lemonade\""
+    ) +
+  guides(color = "none", fill = "none") 
+```
+
+```{r}
+# Jay-Z Visualisations
+
+jayZ_ngrams_f2 %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in all Jay-Z Songs"
+    ) +
+  guides(color = "none", fill = "none") 
+
+jayZ_ngrams_444_f2 %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in \"4:44\""
+    ) +
+  guides(color = "none", fill = "none") 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
