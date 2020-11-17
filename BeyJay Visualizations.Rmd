@@ -1,8 +1,8 @@
 ---
 title: "Beyonce & Jay Z Chart Visualizations-Grace"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,18 +13,22 @@ library(robotstxt)
 library(stringr)
 library(dplyr)
 library(genius)
-library(bbcharts)
+#library(bbcharts)
 library(ggplot2)
 library(data.table)
 library(forcats)
 library(extrafont)
+library(ggrepel)
 ```
 
 
 ```{r}
-path_in <- "/home/class21/gcho21/git/Blog-Power-PUG-Girls"
-Beyonce <- read_csv(paste0(path_in,"/Beyonce.csv"))
-JayZ <- read_csv(paste0(path_in,"/JayZ.csv"))
+#path_in <- "/home/class21/gcho21/git/Blog-Power-PUG-Girls/"
+path_in <- ""
+Beyonce <- read_csv(paste0(path_in,"Beyonce_Chart.csv")) %>%
+  mutate(peak_position = as.numeric(peak_position))
+JayZ <- read_csv(paste0(path_in,"JayZ_Chart.csv")) %>%
+  mutate(peak_position = as.numeric(peak_position))
 
 Beyonce$artist <- c('Beyonce')
 JayZ$artist <- c('Jay Z')
@@ -46,20 +50,28 @@ Beyonce$weeks_number_one <- vec1
 JayZ$weeks_on_chart <- vec_j
 JayZ$weeks_number_one <-vec_2
 
-B_and_J <- rbind(Beyonce, JayZ)
+B_and_J <- rbind(Beyonce, JayZ) %>%
+  mutate(albums2 =  str_trim(str_replace_all(albums,"[\r|\n]", "")))
 
+# even with repel, titles of albums are too big to visualize all
+# could label a subset?
+# this is taking a random sample to label, although you might want to
+# specify a specific subset
+randsamp <- sample(x=B_and_J$albums2, size=10, replace=FALSE)
+B_and_J_subset <- B_and_J %>%
+  filter(albums2 %in% randsamp)
 
-ggplot(B_and_J, aes(x=peak_position, y=weeks_on_chart, color = artist)) +
+ggplot(data=B_and_J, aes(x=peak_position
+                         , y=weeks_on_chart, color = artist)) +
   geom_point() + # Show dots
-  geom_label(label = rownames(B_and_J),
-    nudge_x = 0.25, nudge_y = 0.25, 
-    check_overlap = T
-  ) +
+  geom_label_repel(data = B_and_J_subset
+                   , aes(label = albums2,fill=artist)
+                   , color="black", fontface="bold", size = 2) +
     xlab('Peak Position of Album on UK Albums Chart') +
     ylab('Number of Weeks on Chart') + 
     ggtitle('How do Beyonce and Jay Z Matchup?')+
-    theme_minimal()+
-    theme(text=element_text(family="Times New Roman", size=11)) +
+    theme_minimal() +
+   # theme(text=element_text(family="Times New Roman", size=11)) +
     theme(plot.title = element_text(size = 15, face = "bold",
                                   margin = margin(10, 0, 10, 0))) +
     theme(legend.position = 'top')
