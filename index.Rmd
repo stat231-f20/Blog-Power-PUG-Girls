@@ -3,7 +3,7 @@ title: "Power PUG Girls"
 author: "Alex, Grace, & Jamie"
 date: "11/10/2020"
 output:
-  rmdformats::readthedown:
+  tufte::tufte_html:
     thumbnails: false
     highlight: NULL
 ---
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 library(tidyverse)
 ```
 
-# Header 1
+# Soundfile
 
 Adding example audio using html code.  You can see further explanation, including what internet browsers support what types of audio files [here](https://www.w3schools.com/html/html5_audio.asp).
 
@@ -40,8 +40,8 @@ You should test out updating your GitHub Pages website:
 
 You can embed code as normal, for example:
 
-```{r cars}
-summary(cars)
+```{r cars, echo=FALSE}
+mosaic::favstats(~speed, data = cars)
 ```
 
 Let's clean up the format of that output:
