@@ -1,0 +1,126 @@
+---
+title: "Beyonce & Jay Z Chart Visualizations-Grace"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(robotstxt)
+library(stringr)
+library(dplyr)
+library(genius)
+library(bbcharts)
+library(ggplot2)
+library(data.table)
+library(forcats)
+library(extrafont)
+```
+
+
+```{r}
+path_in <- "/home/class21/gcho21/git/Blog-Power-PUG-Girls"
+Beyonce <- read_csv(paste0(path_in,"/Beyonce.csv"))
+JayZ <- read_csv(paste0(path_in,"/JayZ.csv"))
+
+Beyonce$artist <- c('Beyonce')
+JayZ$artist <- c('Jay Z')
+
+Beyonce$year <- c(2003, 2006, 2007, 2008, 2011, 2013, 2014, 2016, 2019)
+
+JayZ$year <-c(1997, 2000, 2001, 2002, 2002, 2002, 2003, 2004, 2004, 2006, 2007, 2009, 2010, 2011, 2013, 2017)
+
+vec_b <- c(70, 26, 22, 129, 63, 61, 2, 44, 5)
+vec1 <- c(5, 0, 0, 0, 2, 0, 0, 1, 0)
+
+
+vec_j <- c(1, 2, 10, 3, 1, 16, 24, 2, 17, 5, 5, 38, 9, 63, 15, 9)
+vec_2 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+
+Beyonce$weeks_on_chart <-vec_b
+Beyonce$weeks_number_one <- vec1
+
+JayZ$weeks_on_chart <- vec_j
+JayZ$weeks_number_one <-vec_2
+
+B_and_J <- rbind(Beyonce, JayZ)
+
+
+ggplot(B_and_J, aes(x=peak_position, y=weeks_on_chart, color = artist)) +
+  geom_point() + # Show dots
+  geom_label(label = rownames(B_and_J),
+    nudge_x = 0.25, nudge_y = 0.25, 
+    check_overlap = T
+  ) +
+    xlab('Peak Position of Album on UK Albums Chart') +
+    ylab('Number of Weeks on Chart') + 
+    ggtitle('How do Beyonce and Jay Z Matchup?')+
+    theme_minimal()+
+    theme(text=element_text(family="Times New Roman", size=11)) +
+    theme(plot.title = element_text(size = 15, face = "bold",
+                                  margin = margin(10, 0, 10, 0))) +
+    theme(legend.position = 'top')
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+Beyonce %>%
+  ggplot(aes(x = year, y = factor(peak_position, levels = rev(levels(factor(peak_position)))), fill = albums, color = albums, size = weeks_on_chart)) +
+    geom_point( shape = 23) +
+    geom_line() +
+    ggtitle("Evolution of Beyonce's Chart Performance") +
+    ylab('Peak Chart Position of Albums by Beyonce') +
+    xlab('Date of Album Release') +
+    theme_minimal() +
+    theme(text=element_text(family="Times New Roman", size=11)) +
+    theme(legend.position = 'right')
+    
+```
+
+```{r}
+JayZ %>%
+  ggplot(aes(x=year, y = factor(peak_position, levels = rev(levels(factor(peak_position)))), fill = albums, color = albums, size = weeks_on_chart)) +
+    geom_point( shape = 23) +
+    geom_line() +
+    ggtitle("Evolution of Jay Z's Chart Performance") +
+    ylab('Peak Chart Position of Albums by Jay Z') +
+    xlab('Date of Album Release') +
+    theme_minimal() +
+    theme(text=element_text(family="Times New Roman", size=11))
+
+
+```
+```{r}
+library(spotifyr)
+library(knitr)
+Sys.setenv(SPOTIFY_CLIENT_ID = '12860194407644c5b3cfe37e13af3671')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = 'c83b6354997e4cc383221115bab23191')
+
+access_token <- get_spotify_access_token()
+
+
+bey <-  get_artist_audio_features('beyonce')
+jay <- get_artist_audio_features('jayz')
+bey %>% 
+    count(key_mode, sort = TRUE) %>% 
+    head(5) %>% 
+    kable()
+
+jay %>%
+    count(key_mode, sort = TRUE) %>% 
+    head(5) %>% 
+    kable()
+
+bey2 <- spotifyr::get_album('7dK54iZuOxXFarGhXwEXfF')
+
+
+
+```
