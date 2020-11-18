@@ -10,7 +10,12 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
-library(tidyverse)
+library(tidyverse) 
+library(janitor)
+
+library(tidytext)
+library(wordcloud)
+library(textdata)
 ```
 
 # Soundfile
@@ -95,4 +100,246 @@ You can make a numbered list like this
 1. First thing I want to say
 2. Second thing I want to say
 3. Third thing I want to say
+
+
+
+
+
+
+# Introduction
+
+
+
+
+
+
+
+
+
+
+
+# Data
+
+
+
+
+
+
+
+
+
+
+
+# Lyric Analysis
+
+```{r, include=FALSE}
+in_path <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-Power-PUG-Girls"
+
+beyonce_lyrics <- read.csv(paste0(in_path,"/beyonce_lyrics.csv")) %>% 
+  mutate(lyric = as.character(lyric)) %>% 
+  rename(album = title) 
+jayZ_lyrics <- read.csv(paste0(in_path,"/jayZ_lyrics.csv")) %>% 
+  mutate(lyric = as.character(lyric)) %>% 
+  rename(album = title)
+
+data(stop_words)
+```
+
+```{r, include=FALSE} 
+# Extract Unigrams from all songs, and from Lemonade / 4:44
+
+beyonce_ngrams <- beyonce_lyrics %>% 
+  unnest_tokens(output = unigram, input = lyric) %>% 
+  anti_join(stop_words, by = c("unigram" = "word")) %>% 
+  na.omit()
+
+jayZ_ngrams <- jayZ_lyrics %>% 
+  unnest_tokens(output = unigram, input = lyric) %>% 
+  anti_join(stop_words, by = c("unigram" = "word")) %>% 
+  na.omit()
+
+beyonce_ngrams_lemonade <- beyonce_ngrams %>% 
+  filter(album == "Lemonade")
+
+jayZ_ngrams_444 <- jayZ_ngrams %>% 
+  filter(album == "4:44")
+
+# "Run the World (Girls)" for example in paragraph
+beyonce_rtw <- beyonce_ngrams %>% 
+  filter(track_title == "Run the World (Girls)")%>% 
+  count(unigram, sort = TRUE) 
+
+# "Freedom" for example in paragraph
+beyonce_freedom <- beyonce_ngrams_lemonade %>% 
+  filter(track_n == 10) %>% 
+  count(unigram, sort = TRUE) 
+
+# "Legacy" for example in paragraph
+jayZ_legacy <- jayZ_ngrams_444 %>% 
+  filter(track_title == "Legacy") %>% 
+  count(unigram, sort = TRUE) 
+```
+
+```{r, include=FALSE}
+# Frequencies
+
+beyonce_ngrams_f <- beyonce_ngrams %>% 
+  count(unigram, sort = TRUE) 
+
+jayZ_ngrams_f <- jayZ_ngrams %>% 
+  count(unigram, sort = TRUE) 
+
+beyonce_ngrams_lemonade_f <- beyonce_ngrams_lemonade %>% 
+  count(unigram, sort = TRUE) 
+
+jayZ_ngrams_444_f <- jayZ_ngrams_444 %>% 
+  count(unigram, sort = TRUE) 
+
+```
+
+```{r, include=FALSE}
+# Remove n-word from visualisations
+
+# I did this right before visualisation
+#   as to perserve the original data 
+#   and to avoid potential errors with "*" characters. 
+
+jayZ_ngrams_f2 <- jayZ_ngrams_f %>% 
+  mutate(unigram = case_when(unigram == "nigga" ~ "n***a",
+                             unigram == "niggas" ~ "n***as",
+                             T ~ unigram))
+
+
+jayZ_ngrams_444_f2 <- jayZ_ngrams_444_f %>% 
+  mutate(unigram = case_when(unigram == "nigga" ~ "n***a",
+                             unigram == "niggas" ~ "n***as",
+                             T ~ unigram))
+```
+
+For the text analysis of the lyrics, our key questions of interest were: How do the lyrics of Beyoncé songs differ from "Lemonade"? How do the lyrics of Jay-Z songs differ from "4:44"? But, progressing into our analysis, we quickly realised that text analysis is not entirely appropriate to songs, nor is particualrly insightful for either of these artists. So, the analysis took on a different purpose: what information can be gleaned, at all, from a text analysis of Beyoncé and Jay-Z songs, and "Lemonade" and "4:44"? And what information is lost in a text analysis?
+
+Beyoncé is up first. The two visualisations below show the 20 most frequent words across Beyoncé's discography and in "Lemonade" specifically. 
+
+```{r, echo=FALSE}
+# Beyonce Visualisations
+
+beyonce_ngrams_f %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in all Beyoncé songs"
+    ) +
+  guides(color = "none", fill = "none") 
+
+beyonce_ngrams_lemonade_f %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in \"Lemonade\""
+    ) +
+  guides(color = "none", fill = "none") 
+```
+
+There are not any significant differences between "Lemonade" and her complete discography. Moreover, the nature of Beyoncé's musicality is a counfounding variable which informs which words are most frequent, more than "theme" does. Most of her songs repeats a central word or phrases. The song "Run the World (Girls)" is a prime example. The song repeats the title phrase 32 times; the words "run", "world" and "girls" are all in the top 10 words of Beyoncé's discography. 
+
+The same is true for "Lemonade". While "freedom" is a central theme of the album, it is high on the frequency list largely in part due to the song "Freedom (ft. Kendrick Lamar)", which contains the word "freedom" 21 times. Largely, this counfounding issue exposes a fundamental issue with using text analysis on songs: the meaning of a song is not necesarily in the lyrics, but in the music.
+
+However, beyond the fundamental restrictions of using text analysis of music, it is clear that "love" is a central theme of Beyoncé's music. It is the most frequent word across Beyoncé's discography and in "Lemonade" specifically. Of course, the word suffers from the same issue as in "Run the World (Girls)" and "Freedom (ft. Kendrick Lamar)". "Love" is in the central pattern of a number of her songs, including "Love on Top", "Crazy in Love (feat. Jay-Z)" -- two of her most well known songs -- and in "Love Drought" in "Lemonade.
+
+In this case, we are less concerned with the confounding impact of the song pattern, because the word "love" appears in the central pattern of multiple songs, as well as smaller instances in other songs. Female enpowerment is another theme visible in the word frequency visualisations. 
+
+There are many themes central to Beyoncé's discography and to "Lemonade" that do not appear in the word frequency visualisations. Most notably, her focus on pride and reclaimation of her Black heritage is not visible. This theme can be readily intepreted from the music and visual accompaniments of "Lemonade". Text analysis does not offer us the full picture, in this instance.
+
+---
+
+Next up is Jay-Z. The two visualisations below show the 20 most frequent words across Jay-Z's discography and in "4:44" specifically. 
+
+```{r, echo=FALSE}
+# Jay-Z Visualisations
+
+jayZ_ngrams_f2 %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in all Jay-Z songs"
+    ) +
+  guides(color = "none", fill = "none") 
+
+jayZ_ngrams_444_f2 %>% 
+  slice(1:20) %>% 
+  ggplot(aes(
+    x = reorder(unigram, n), 
+    y = n, 
+    color = unigram, 
+    fill = unigram)) +
+  geom_col() +
+  xlab(NULL) +
+  coord_flip() +
+  labs(
+    y = "Number of instances", 
+    title = "Most frequent words in \"4:44\""
+    ) +
+  guides(color = "none", fill = "none") 
+```
+
+Before addressing the differences between the two, it is important to acknowledge the presence of stop words in the visualisations. Early in the wrangling process, we removed stop words using the `stop_words` dataset built into R. And yet, 8 of the 20 most frequent words in Jay-Z songs are stop words, vocalisations like "uh" and exclamations like "yeah". The default stop words package seems to have an inflexible range. Maybe, words like "y'all" provide a cultural context, so are not removed. More likely, the stop word dataset is intended for literaturem not music. Still, the implications of such a specification makes the cultural center of their text analysis eurocentric. 
+
+Both summaries of Jay-Z songs also show that his songs contain many explatives. This is noteworthy compared to Beyoncé, who does not often use curse words. But, we cannot necessarily prescribe a difference in theme or meaning from this text analysis. Instead, the confounding variable is that their music belong to different genres. Beyoncé is not a rap artist; Jay-Z is. 
+Within the framework of rap, a field of literature with a developing body of work, I question whether these explatives are stop words or not. Certainly, in comparison with other genres of music, they are exceptional. But, in comparison with other rap music, this is not particularly noteworthy. The n-word also has a unique cultural role in rap music that the visualisation reflects. The n-word and the plural are the two most frequent words in Jay-Z's music. Again, I do not attribute this to Jay-Z in particular, but to the genre of rap. 
+
+And, just like with Beyoncé's songs, text analysis is uniquely inadequete for rap music. The meaning, style and emotion conveyed lie in the sound. 
+
+Regardless of these restrictions, looking past the stop words in the reference of rap music, differences between the set and subset of Jay-Z's music appear. "4:44", compared to all Jay-Z songs, touches on themes related to Jay-Z's infamous infidelity: "family" and "legacy". Just like with Beyoncé's music, however, such an ascription is faulty; the song "Legacy" in "4:44" contains "legacy" 16 times. 
+
+And, similarly to Beyoncé, Jay-Z's most frequent word of meaning is "love". These two artists, despite having vastly different styles and belonging to different genres of music, still base their music on the same central theme. And, despite the narrative of struggling with infidelity that both "Lemonade" and "4:44" grapple with, they are both still about love.  
+
+
+
+
+
+We think that a more literary, tailored apprach to lyric analysis would provide more insight into the meaning behind the albums. 
+
+
+
+
+
+
+
+# Chart Analysis
+
+
+
+
+
+
+
+
+
+
+
+# Sales Analysis
 
