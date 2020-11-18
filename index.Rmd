@@ -1,12 +1,13 @@
 ---
-title: "Power PUG Girls"
-author: "Alex, Grace, & Jamie"
-date: "11/10/2020"
+title: "A Statistical Analysis of Beyoncé and Jay-Z"
+author: "PowerPug Girls: Alex, Grace, & Jamie"
 output:
   tufte::tufte_html:
     thumbnails: false
     highlight: NULL
 ---
+
+<body style="background-color:#f6c9a0;">
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
@@ -120,7 +121,9 @@ You can make a numbered list like this
 
 # Data
 
+Here are the various sources of our data:
 
+- Lyrics from the `genius` package
 
 
 
@@ -239,7 +242,12 @@ beyonce_ngrams_f %>%
     y = "Number of instances", 
     title = "Most frequent words in all Beyoncé songs"
     ) +
-  guides(color = "none", fill = "none") 
+  guides(color = "none", fill = "none") +
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
 
 beyonce_ngrams_lemonade_f %>% 
   slice(1:20) %>% 
@@ -255,7 +263,12 @@ beyonce_ngrams_lemonade_f %>%
     y = "Number of instances", 
     title = "Most frequent words in \"Lemonade\""
     ) +
-  guides(color = "none", fill = "none") 
+  guides(color = "none", fill = "none") +
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
 ```
 
 There are not any significant differences between "Lemonade" and her complete discography. Moreover, the nature of Beyoncé's musicality is a counfounding variable which informs which words are most frequent, more than "theme" does. Most of her songs repeats a central word or phrases. The song "Run the World (Girls)" is a prime example. The song repeats the title phrase 32 times; the words "run", "world" and "girls" are all in the top 10 words of Beyoncé's discography. 
@@ -289,7 +302,12 @@ jayZ_ngrams_f2 %>%
     y = "Number of instances", 
     title = "Most frequent words in all Jay-Z songs"
     ) +
-  guides(color = "none", fill = "none") 
+  guides(color = "none", fill = "none") +
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
 
 jayZ_ngrams_444_f2 %>% 
   slice(1:20) %>% 
@@ -305,7 +323,12 @@ jayZ_ngrams_444_f2 %>%
     y = "Number of instances", 
     title = "Most frequent words in \"4:44\""
     ) +
-  guides(color = "none", fill = "none") 
+  guides(color = "none", fill = "none") +
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
 ```
 
 Before addressing the differences between the two, it is important to acknowledge the presence of stop words in the visualisations. Early in the wrangling process, we removed stop words using the `stop_words` dataset built into R. And yet, 8 of the 20 most frequent words in Jay-Z songs are stop words, vocalisations like "uh" and exclamations like "yeah". The default stop words package seems to have an inflexible range. Maybe, words like "y'all" provide a cultural context, so are not removed. More likely, the stop word dataset is intended for literaturem not music. Still, the implications of such a specification makes the cultural center of their text analysis eurocentric. 
