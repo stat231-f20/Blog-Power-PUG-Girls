@@ -27,45 +27,16 @@ library(extrafont)
 library(ggrepel)
 library(ggimage)
 library(knitr)
+
+library(fivethirtyeight)
+library(spotifyr)
+library(ggjoy)
 ```
 
-# Soundfile
-
-Adding example audio using html code.  You can see further explanation, including what internet browsers support what types of audio files [here](https://www.w3schools.com/html/html5_audio.asp).
-
-<audio controls>
-  <source src="audio/Freedom.mp3" type="audio/mpeg">
-Your browser does not support the audio element.
-</audio>
 
 
 
-## Including links and images
-
-You can include [Links](https://www.datadreaming.org/post/r-markdown-theme-gallery/) and images ![team logo](https://raw.githubusercontent.com/stat231-f20/Blog-Power-PUG-Girls/main/images/powerPUGgirls.png)
-
-
-# You can even create tabs if you want! {.tabset .tabset-fade .tabset-pills}
-
-## Bulleted list
-
-You can make a bulleted list like this:
-
-- item 1
-- item 2
-- item 3
-
-
-## Numbered list
-
-You can make a numbered list like this
-
-1. First thing I want to say
-2. Second thing I want to say
-3. Third thing I want to say
-
-
-
+![team logo](https://raw.githubusercontent.com/stat231-f20/Blog-Power-PUG-Girls/main/images/powerPUGgirls.png)
 
 
 
@@ -310,7 +281,8 @@ And, similarly to Beyoncé, Jay-Z's most frequent word of meaning is "love". The
 
 # Chart Analysis
 
-For the charts analysis of the albums, we wanted to know how the evolution of chart performance for two halves of the biggest musical duo in the world. How do their chart performances compare to each other and is there a moment of synchrony for both ‘Lemonade’ and ‘4:44’? Progressing into our analysis, we found that Beyoncé performs better on the charts and that despite the artists’ dynamite success in the last 10 years, the chart performances fail to reflect that. So what is caused this to happen?
+For the charts analysis of the albums, we wanted to know how the evolution of chart performance for two halves of the biggest musical duo in the world. How do their chart performances compare to each other and is there a moment of synchrony for both ‘Lemonade’ and ‘4:44’? Progressing into our analysis, we found that Beyoncé performs better on the charts and that despite the artists’ dynamite success in the last 10 years, the chart performances fail to reflect that. So what caused this to happen?
+
 
 ```{r, echo=FALSE, warning=F, message=F}
 path_in <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-Power-PUG-Girls"
@@ -444,6 +416,196 @@ This visualization shows the evolution of Jay Z's chart performance. While the v
 
 # Sales Analysis
 
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# check allowed to be scraped
+#paths_allowed("https://www.wikipedia.org/")
+
+# identify webpage URLs you want to scrape
+hov_url <- "https://en.wikipedia.org/wiki/Jay-Z_albums_discography"
+bey_url <- "https://en.wikipedia.org/wiki/Beyoncé_discography"
+
+
+###### SCRAPE FOR JAY-Z ######
+# scrape tables
+hov_tables <- hov_url %>%
+  read_html() %>%
+  html_nodes("table")
+
+# choosing table
+hov_studio <- html_table(hov_tables[[2]], fill = TRUE) 
+
+# extracting wanted information from columns
+hov_studio <- hov_studio %>%
+  janitor::clean_names() %>%
+  filter(title != "Title") %>%
+  select(title, album_details, sales) %>%
+  mutate(album_details = gsub(pattern = ".*d: ", "", album_details),
+         day = readr::parse_number(album_details),
+         year = sub('.*(\\d{4}).*', '\\1', album_details),
+         month = gsub(' .*', '', album_details)) %>%
+  mutate(sales = gsub(pattern = ".*S: ", "", sales),
+         sales = gsub(pattern = "\\[.*", "", sales),
+         sales = readr::parse_number(sales)) %>%
+  mutate(sales_mil = sales / 1000000) %>%
+  mutate(title = gsub(pattern = "\\[.*", "", title))
+
+# combining and reformatting date columns
+hov_studio <- hov_studio %>%
+  mutate(month = as.numeric(match(hov_studio$month, month.name)), # make month numeric 
+         year = as.numeric(year)) # make year numeric
+hov_studio <- hov_studio %>%
+  mutate(release_date = with(hov_studio, paste(month, day, year, sep = "-")),
+         release_date = as.Date(release_date, format = "%m-%d-%Y"),
+         key = "Jay-Z")
+
+##### SCRAPE FOR BEYONCE #####
+# scrape tables
+bey_tables <- bey_url %>%
+  read_html() %>%
+  html_nodes("table")
+
+# choosing table
+bey_studio <- html_table(bey_tables[[2]], fill = TRUE)
+
+# extracting wanted information from columns
+bey_studio <- bey_studio %>%
+  janitor::clean_names() %>%
+  filter(title != "Title") %>%
+  select(title, album_details, sales) %>%
+  mutate(album_details = gsub(pattern = ".*d: ", "", album_details),
+         day = readr::parse_number(album_details),
+         year = sub('.*(\\d{4}).*', '\\1', album_details),
+         month = gsub(' .*', '', album_details)) %>%
+  mutate(sales = gsub(pattern = ".*S: ", "", sales),
+         sales = gsub(pattern = "\\(.*", "", sales),
+         sales = gsub(pattern = "\\[.*", "", sales),
+         sales = readr::parse_number(sales)) %>%
+  mutate(sales_mil = sales / 1000000)
+
+# combining and reformatting date columns
+bey_studio <- bey_studio %>%
+  mutate(month = as.numeric(match(bey_studio$month, month.name)), # make month numeric 
+         year = as.numeric(year)) # make year numeric
+bey_studio <- bey_studio %>%
+  mutate(release_date = with(bey_studio, paste(month, day, year, sep = "-")),
+         release_date = as.Date(release_date, format = "%m-%d-%Y"),
+         key = "Beyonce")
+
+# combine tables
+full_studio <- rbind(bey_studio, hov_studio)
+
+```
+
+As a disclaimer, album sales are difficult to assess during the streaming era. The below sales numbers are all pulled from Billboard, and they reflect U.S. sales only. All Jay-Z sales below are as of June 2018, and the below numbers reflect streaming numbers converted to physical sales, where 1250 streams equates to 1 album sale. All Beyonce sales are as of December 2016 except for “Lemonade”, which is pulled from January 2017. 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# create plot
+ggplot(data = full_studio, aes(x = year, y = sales_mil, color = key)) +
+  geom_line() +
+  geom_label(aes(y = 5.6, x = 2000, label = "Vol. 2... Hard Knock Life"), 
+             fill = "#00BFC4", size = 3, color = "white") +
+  geom_label(aes(y = 0.75, x = 2017, label = "4:44"), 
+             fill = "#00BFC4", size = 3, color = "white") +
+  geom_label(aes(y = 5.25, x = 2003, label = "Dangerously in Love"), 
+             fill = "#F8766D", size = 3, color = "white") +
+  geom_label(aes(y = 1.35, x = 2016, label = "Lemonade"), 
+             fill = "#F8766D", size = 3, color = "white") +
+  labs(
+    x = "Release Date", y = "Total Sales (Millions)",
+    title = "Album Sales over Time for Jay-Z and Beyonce",
+    color = "Artist"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.grid.minor = element_blank()
+  )+
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
+
+```
+
+
+Both artists peaked early in their career, with Jay-Z’s third album “Vol. 2… Hard Knock Life” representing a career high, and Beyonce’s first album “Dangerously in Love” reflecting her highest single album sales. Naturally, album sales are biased toward older albums, as they have been available to consumers for longer, explaining the negative trend for both artists. Both artists had mid-career resurgence albums. For Jay-Z, it was 2003’s “The Black Album”, and for Beyonce, it was 2013’s “Beyonce”. The Carters’ most recent releases both present challenges in evaluation. Jay-Z’s commitment to the less-used Tidal streaming service hurt his adjusted sales for 2017’s “4:44”, the lowest selling album of his career. “Lemonade” was initially released as a visual album on Tidal, not being added to Spotify or Apple Music until years later (not reflected in these sales), and the album had been available for less than a year. To put it in perspective, “Lemonade” broke 485,000 adjusted sales in its first week, bolstered by 115 million Tidal streams, a record high streaming number for a female artist.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# logging into spotify developer id
+Sys.setenv(SPOTIFY_CLIENT_ID = '8dfd392a0b1a498b9ebae5977afc274a')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = 'e4fbba48bed34287b6029b1a5c1d8537')
+access_token <- get_spotify_access_token()
+
+
+# getting artist audio features
+hov <- get_artist_audio_features('jay-z') %>%
+  filter(album_name %in% hov_studio$title | 
+           album_name == "Vol.2 ... Hard Knock Life" | 
+           album_name == "Volume. 3... Life and Times of S. Carter" |
+           album_name == "The Dynasty: Roc La Famila 2000")
+bey <- get_artist_audio_features('beyonce') %>%
+  filter(album_name == "Lemonade" | album_name == "I AM...SASHA FIERCE" | 
+         album_name == "B'Day" | album_name == "Dangerously In Love" |
+         album_name == "4" | album_name == "Beyoncé")
+
+# order beyonce albums
+ordered_albums <- factor(bey$album_name)
+ordered_albums <- factor(ordered_albums, levels(ordered_albums)[c(5, 1, 4, 2, 3)])
+bey$ordered_albums <- ordered_albums
+
+# order jay-z albums
+ordered_albums_hov <- factor(hov$album_name)
+ordered_albums_hov <- factor(ordered_albums_hov, levels(ordered_albums_hov)[c(1, 5, 10, 2, 4, 7, 9, 8, 11, 13, 12, 3, 6)])
+hov$ordered_albums_hov <- ordered_albums_hov
+
+```
+
+
+
+A statistic called valence exists in Spotify’s API, reflecting the “musical positiveness” conveyed by a song. Higher valence numbers correspond to more positive sound, while lower valence numbers correspond to more negative sound. Valence is measured on a scale from 0 to 1, and the plots essentially reflect the density of an album in terms of different valence numbers. 
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# jay-z album valence plots
+ggplot(hov, aes(x = valence, y = ordered_albums_hov, fill = ..x..)) + 
+  xlim(0,1) +
+  geom_density_ridges_gradient(scale = 0.9) + 
+  scale_fill_gradient(low = "white", high = "black") + 
+  geom_joy_gradient() + 
+  theme_joy() +
+  ggtitle("Jayplot of Jay-Z's joy distributions", 
+          subtitle = "Based on valence pulled from Spotify's Web API with spotifyr") +
+  labs(x = "Valence", y = "Ordered Albums by Date (Newest - Oldest)") +
+  theme(legend.position = "none")+
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
+
+```
+
+Examining Jay-Z’s career discography, a general trend exists of higher valence peaks early in his career. As his career has progressed, the albums are generally more balanced across the valence spectrum, with less dramatic peaks. 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# beyonce album valence plots
+ggplot(bey, aes(x = valence, y = ordered_albums, fill = ..x..)) + 
+  xlim(0,1) +
+  geom_density_ridges_gradient(scale = 0.9) + 
+  scale_fill_gradient(low = "white", high = "purple4") + 
+  geom_joy_gradient() + 
+  theme_joy() +
+  ggtitle("Beyplot of Beyonce's joy distributions", 
+          subtitle = "Based on valence pulled from Spotify's Web API with spotifyr") +
+  labs(x = "Valence", y = "Ordered Albums by Date (Newest - Oldest)") +
+  theme(legend.position = "none")+
+  theme(plot.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"), 
+        panel.background = element_rect(fill = "#f6c9a0", color = "#f6c9a0"),
+        panel.grid.major = element_line(color = "black"),
+        panel.grid.minor = element_line(color = "black"),
+        text = element_text(family = "serif"))
+
+```
+
+Beyonce’s plots have been more balanced throughout the valence spectrum throughout her career, with peaks usually occurring near the middle. Unsurprising since it covers themes of adultery, “Lemonade” has considerably fewer tracks in the high valence end of the spectrum and a far greater fraction of tracks near 0 than Beyonce’s other studio albums. Important to note, Beyonce’s eponymous album is omitted from this plot, as it was not available with Spotify’s API statistics.
 
 
 
