@@ -11,12 +11,22 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
-library(tidyverse) 
-library(janitor)
-
+library(tidyverse)
 library(tidytext)
-library(wordcloud)
-library(textdata)
+library(rvest)
+library(robotstxt)
+library(stringr)
+library(dplyr)
+library(genius)
+
+library(ggplot2)
+library(data.table)
+library(forcats)
+library(extrafont)
+
+library(ggrepel)
+library(ggimage)
+library(knitr)
 ```
 
 # Soundfile
@@ -350,6 +360,111 @@ And, similarly to Beyoncé, Jay-Z's most frequent word of meaning is "love". The
 
 
 # Chart Analysis
+
+```{r, echo=FALSE}
+path_in <- "C:/Users/abran/OneDrive/Documents/STAT 231 - Data Science/git/Blog-Power-PUG-Girls"
+
+Beyonce <- read_csv(paste0(path_in,"/Beyonce_Chart.csv")) %>%
+  mutate(peak_position = as.numeric(peak_position))
+JayZ <- read_csv(paste0(path_in,"/JayZ_Chart.csv")) %>%
+  mutate(peak_position = as.numeric(peak_position))
+
+Beyonce$artist <- c('Beyonce')
+JayZ$artist <- c('Jay Z')
+
+Beyonce$year <- c(2003, 2006, 2007, 2008, 2011, 2013, 2014, 2016, 2019)
+
+JayZ$year <-c(1997, 2000, 2001, 2002, 2002, 2002, 2003, 2004, 2004, 2006, 2007, 2009, 2010, 2011, 2013, 2017)
+
+vec_b <- c(70, 26, 22, 129, 63, 61, 2, 44, 5)
+vec1 <- c(5, 0, 0, 0, 2, 0, 0, 1, 0)
+
+
+vec_j <- c(1, 2, 10, 3, 1, 16, 24, 2, 17, 5, 5, 38, 9, 63, 15, 9)
+vec_2 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+
+Beyonce$weeks_on_chart <-vec_b
+Beyonce$weeks_number_one <- vec1
+
+JayZ$weeks_on_chart <- vec_j
+JayZ$weeks_number_one <-vec_2
+
+
+B_and_J <- rbind(Beyonce, JayZ)
+
+
+ggplot(B_and_J, aes(x=peak_position, y=weeks_on_chart, color = artist)) +
+  geom_point() + # Show dots
+  geom_label(label = rownames(B_and_J),
+    nudge_x = 0.25, nudge_y = 0.25, 
+    check_overlap = T
+  ) +
+    xlab('Peak Position of Album on UK Albums Chart') +
+    ylab('Number of Weeks on Chart') + 
+    ggtitle('How do Beyonce and Jay Z Matchup?')+
+    theme_minimal()+
+    theme(text=element_text(family="Times New Roman", size=11)) 
+
+B_and_J <- rbind(Beyonce, JayZ) %>%
+  mutate(albums2 =  str_trim(str_replace_all(albums,"[\r|\n]", "")))
+
+# even with repel, titles of albums are too big to visualize all
+# could label a subset?
+# this is taking a random sample to label, although you might want to
+# specify a specific subset
+randsamp <- sample(x=B_and_J$albums2, size=10, replace=FALSE)
+B_and_J_subset <- B_and_J %>%
+  filter(albums2 %in% randsamp)
+
+ggplot(data=B_and_J, aes(x=peak_position
+                         , y=weeks_on_chart, color = artist)) +
+  geom_point() + # Show dots
+  geom_label_repel(data = B_and_J_subset
+                   , aes(label = albums2,fill=artist)
+                   , color="black", fontface="bold", size = 2) +
+    xlab('Peak Position of Album on UK Albums Chart') +
+    ylab('Number of Weeks on Chart') + 
+    ggtitle('How do Beyonce and Jay Z Matchup?')+
+    theme_minimal() +
+    theme(text=element_text(family="Times New Roman", size=11)) +
+    theme(plot.title = element_text(size = 15, face = "bold",
+                                  margin = margin(10, 0, 10, 0))) +
+    theme(legend.position = 'top')
+
+
+```
+
+Something we can see from this chart is that Beyoncé fares better in album performance between the two. While Beyoncé is a superstar, her success can be related to her pop genre music and previous work in Destiny's Child. Beyoncé is a singer in a much more mainstream and commercialized genre of music than Jay Z is. Even though Jay Z may not seem to be as successful in album sales as Beyoncé, he is a rapper and hip-hop has not been treated in the same regard as pop music has. 
+
+```{r, echo=FALSE}
+Beyonce %>%
+  ggplot(aes(x = year, y = factor(peak_position, levels = rev(levels(factor(peak_position)))), fill = albums, color = albums, size = weeks_on_chart)) +
+    geom_point( shape = 23) +
+    geom_line() +
+    ggtitle("Evolution of Beyonce's Chart Performance") +
+    ylab('Peak Chart Position of Albums by Beyonce') +
+    xlab('Date of Album Release') +
+    theme_minimal() +
+    theme(text=element_text(family="Times New Roman", size=11)) +
+    theme(legend.position = 'right')
+    
+```
+
+Beyonce's albums have always fared well. All 6 of her studio albums are chart toppers. One thing to note is that while this visualization might give one the sense that Beyonce hasn't made it big since 'I am Sasha Fierce', that is untrue. Beyoncé has only become more popular and more critically acclaimed. 'Lemonade is Beyonce's most critically acclaimed album. 'It is the introduction of her own streaming service, Tidal, which distorted the chart performance of her latest studio album 'Lemonade'. Because, Tidal is a much smaller and niche market
+
+```{r, echo=FALSE}
+JayZ %>%
+  ggplot(aes(x=year, y = factor(peak_position, levels = rev(levels(factor(peak_position)))), fill = albums, color = albums, size = weeks_on_chart)) +
+    geom_point( shape = 23) +
+    geom_line() +
+    ggtitle("Evolution of Jay Z's Chart Performance") +
+    ylab('Peak Chart Position of Albums by Jay Z') +
+    xlab('Date of Album Release') +
+    theme_minimal() +
+    theme(text=element_text(family="Times New Roman", size=11))
+```
+
+This visualization shows the evolution of Jay Z's chart performance. While the visualization shows that Jay Z has been on an upward trend, I'd like to note that this is not reflective of his success and fame. As a hip-hop artist, Jay Z would not fare well against pop music counterparts, especially because hip-hop has only become more mainstream in recent years. Another thing to note is that Jay Z almost exclusively released his music on his own streaming service, Tidal. He only released music on Spotify and Apple Music years later. This might affect how well his album performs on charts, despite his immense popularity.
 
 
 
