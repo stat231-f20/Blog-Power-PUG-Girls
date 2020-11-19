@@ -37,11 +37,11 @@ library(ggjoy)
 
 # Introduction
 
-In 2016, pop superstar Beyoncé released _Lemonade_, a genre-spanning album that broke records and han a profound cultural impact. While it is is one of Beyoncé's most critically reviewed albums, _Lemonade_ also gained traction due to the tantalising drama of her husband, rapper and producer Jay-Z, cheating on her. In the accomplanying visual album, Beyoncé smashes cars to the tune of "Hold Up", in celebratory protest of Jay-Z's infidelity.
+In 2016, pop superstar Beyoncé released _Lemonade_, a genre-spanning album that broke records and had a profound cultural impact. While it is one of Beyoncé's most critically reviewed albums, _Lemonade_ also gained traction due to the tantalising drama of her husband, rapper and producer Jay-Z, cheating on her. In the accompanying visual album, Beyoncé smashes cars to the tune of "Hold Up", in celebratory protest of Jay-Z's infidelity.
 
-One year later, Jay-Z released _4:44_, a spiritual response via album that features Beyoncé as a collaborator. The album openly addresses the rapper's infidelity, and serves as an symoblic promise to his wife. If only all couples could settle their issues in the recording studio...
+One year later, Jay-Z released _4:44_, a spiritual response via album that features Beyoncé as a collaborator. The album openly addresses the rapper's infidelity, and serves as a symoblic promise to his wife. If only all couples could settle their issues in the recording studio...
 
-For both artists, the two albums mark a concise shift to new styles compared to the rest of their work, thematically, artistically and musically. But what about statistically? Our project works to quantify and qualify the relationship between these two icons by means of a statistical analysis their discography. 
+For both artists, the two albums mark a concise shift to new styles compared to the rest of their work, thematically, artistically and musically. But what about statistically? Our project works to quantify and qualify the relationship between these two icons by means of a statistical analysis of their discography. 
 
 
 # Data
