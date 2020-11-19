@@ -1,3 +1,10 @@
+---
+title: "jamietextandvis"
+output: html_document
+---
+
+```{r setup, include=FALSE, message = FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse) 
 library(rvest)
 library(robotstxt)
@@ -6,14 +13,20 @@ library(spotifyr)
 library(genius)
 library(ggjoy)
 library(fivethirtyeight)
+```
 
+## R Markdown
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # check allowed to be scraped
-paths_allowed("https://www.wikipedia.org/")
+#paths_allowed("https://www.wikipedia.org/")
 
 # identify webpage URLs you want to scrape
 hov_url <- "https://en.wikipedia.org/wiki/Jay-Z_albums_discography"
 bey_url <- "https://en.wikipedia.org/wiki/Beyoncé_discography"
 
+
+###### SCRAPE FOR JAY-Z ######
 # scrape tables
 hov_tables <- hov_url %>%
   read_html() %>%
@@ -46,6 +59,7 @@ hov_studio <- hov_studio %>%
          release_date = as.Date(release_date, format = "%m-%d-%Y"),
          key = "Jay-Z")
 
+##### SCRAPE FOR BEYONCE #####
 # scrape tables
 bey_tables <- bey_url %>%
   read_html() %>%
@@ -81,6 +95,11 @@ bey_studio <- bey_studio %>%
 # combine tables
 full_studio <- rbind(bey_studio, hov_studio)
 
+```
+
+As a disclaimer, album sales are difficult to assess during the streaming era. The below sales numbers are all pulled from Billboard, and they reflect U.S. sales only. All Jay-Z sales below are as of June 2018, and the below numbers reflect streaming numbers converted to physical sales, where 1250 streams equates to 1 album sale. All Beyonce sales are as of December 2016 except for “Lemonade”, which is pulled from January 2017. 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # create plot
 ggplot(data = full_studio, aes(x = year, y = sales_mil, color = key)) +
   geom_line() +
@@ -102,6 +121,12 @@ ggplot(data = full_studio, aes(x = year, y = sales_mil, color = key)) +
     panel.grid.minor = element_blank()
   )
 
+```
+
+
+Both artists peaked early in their career, with Jay-Z’s third album “Vol. 2… Hard Knock Life” representing a career high, and Beyonce’s first album “Dangerously in Love” reflecting her highest single album sales. Naturally, album sales are biased toward older albums, as they have been available to consumers for longer, explaining the negative trend for both artists. Both artists had mid-career resurgence albums. For Jay-Z, it was 2003’s “The Black Album”, and for Beyonce, it was 2013’s “Beyonce”. The Carters’ most recent releases both present challenges in evaluation. Jay-Z’s commitment to the less-used Tidal streaming service hurt his adjusted sales for 2017’s “4:44”, the lowest selling album of his career. “Lemonade” was initially released as a visual album on Tidal, not being added to Spotify or Apple Music until years later (not reflected in these sales), and the album had been available for less than a year. To put it in perspective, “Lemonade” broke 485,000 adjusted sales in its first week, bolstered by 115 million Tidal streams, a record high streaming number for a female artist.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # logging into spotify developer id
 Sys.setenv(SPOTIFY_CLIENT_ID = '8dfd392a0b1a498b9ebae5977afc274a')
 Sys.setenv(SPOTIFY_CLIENT_SECRET = 'e4fbba48bed34287b6029b1a5c1d8537')
@@ -129,6 +154,12 @@ ordered_albums_hov <- factor(hov$album_name)
 ordered_albums_hov <- factor(ordered_albums_hov, levels(ordered_albums_hov)[c(1, 5, 10, 2, 4, 7, 9, 8, 11, 13, 12, 3, 6)])
 hov$ordered_albums_hov <- ordered_albums_hov
 
+```
+
+
+
+A statistic called valence exists in Spotify’s API, reflecting the “musical positiveness” conveyed by a song. Higher valence numbers correspond to more positive sound, while lower valence numbers correspond to more negative sound. Valence is measured on a scale from 0 to 1, and the plots essentially reflect the density of an album in terms of different valence numbers. 
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # jay-z album valence plots
 ggplot(hov, aes(x = valence, y = ordered_albums_hov, fill = ..x..)) + 
   xlim(0,1) +
@@ -141,6 +172,11 @@ ggplot(hov, aes(x = valence, y = ordered_albums_hov, fill = ..x..)) +
   labs(x = "Valence", y = "Ordered Albums by Date (Newest - Oldest)") +
   theme(legend.position = "none")
 
+```
+
+Examining Jay-Z’s career discography, a general trend exists of higher valence peaks early in his career. As his career has progressed, the albums are generally more balanced across the valence spectrum, with less dramatic peaks. 
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # beyonce album valence plots
 ggplot(bey, aes(x = valence, y = ordered_albums, fill = ..x..)) + 
   xlim(0,1) +
@@ -153,4 +189,7 @@ ggplot(bey, aes(x = valence, y = ordered_albums, fill = ..x..)) +
   labs(x = "Valence", y = "Ordered Albums by Date (Newest - Oldest)") +
   theme(legend.position = "none")
 
+```
+
+Beyonce’s plots have been more balanced throughout the valence spectrum throughout her career, with peaks usually occurring near the middle. Unsurprising since it covers themes of adultery, “Lemonade” has considerably fewer tracks in the high valence end of the spectrum and a far greater fraction of tracks near 0 than Beyonce’s other studio albums. Important to note, Beyonce’s eponymous album is omitted from this plot, as it was not available with Spotify’s API statistics.
 
