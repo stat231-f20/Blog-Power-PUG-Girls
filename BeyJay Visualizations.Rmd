@@ -2,8 +2,8 @@
 title: "Beyonce & Jay Z Chart Visualizations-Grace"
 output:
 
-  pdf_document: default
-  html_document: default
+pdf_document: default
+html_document: default
 
 ---
 
@@ -119,7 +119,7 @@ Beyonce %>%
     theme(legend.position = 'right')
     
 ```
-Beyonce's albums have always fared well. All 6 of her studio albums are chart toppers. One thing to note is that while this visualization might give one the sense that Beyonce hasn't made it big since 'I am Sasha Fierce', that is untrue. Beyoncé has only become more popular and more critically acclaimed. It is the introduction of streaming services like Spotify, Apple Music, and Tidal that distort the authenticity of chart data. In this day, it is genuinely rare to find album sales.
+Beyonce's albums have always fared well. All 6 of her studio albums are chart toppers. One thing to note is that while this visualization might give one the sense that Beyonce hasn't made it big since 'I am Sasha Fierce', that is untrue. Beyoncé has only become more popular and more critically acclaimed. 'Lemonade is Beyonce's most critically acclaimed album. 'It is the introduction of her own streaming service, Tidal, which distorted the chart performance of her latest studio album 'Lemonade'. Because, Tidal is a much smaller and niche market
 ```{r}
 JayZ %>%
   ggplot(aes(x=year, y = factor(peak_position, levels = rev(levels(factor(peak_position)))), fill = albums, color = albums, size = weeks_on_chart)) +
@@ -133,6 +133,8 @@ JayZ %>%
 
 
 ```
+
+This visualization shows the evolution of Jay Z's chart performance. While the visualization shows that Jay Z has been on an upward trend, I'd like to note that this is not reflective of his success and fame. As a hip-hop artist, Jay Z would not fare well against pop music counterparts, especially because hip-hop has only become more mainstream in recent years. Another thing to note is that Jay Z almost exclusively released his music on his own streaming service, Tidal. He only released music on Spotify and Apple Music years later. This might affect how well his album performs on charts, despite his immense popularity.
 ```{r}
 library(spotifyr)
 library(knitr)
