@@ -41,7 +41,7 @@ In 2016, pop superstar Beyoncé released _Lemonade_, a genre-spanning album that
 
 One year later, Jay-Z released _4:44_, a spiritual response via album that features Beyoncé as a collaborator. The album openly addresses the rapper's infidelity, and serves as an symoblic promise to his wife. If only all couples could settle their issues in the recording studio...
 
-The two albums mark a concise shift between the two artists and the rest of their work, thematically, artistically and musically. But what about statistically? Our project works to quantify and qualify the relationship between these two icons by means of a statistical analysis their discography. 
+For both artists, the two albums mark a concise shift to new styles compared to the rest of their work, thematically, artistically and musically. But what about statistically? Our project works to quantify and qualify the relationship between these two icons by means of a statistical analysis their discography. 
 
 
 # Data
@@ -202,6 +202,8 @@ There are not many significant differences between _Lemonade_ and her complete d
 
 The same is true for _Lemonade_. While freedom is a central theme of the album, it is high on the frequency list largely in part due to the song “Freedom (ft. Kendrick Lamar)”, which contains the word “freedom” 21 times. Largely, this confounding issue exposes a fundamental issue with using text analysis on songs: the meaning of a song is not necessarily in the lyrics, but in the music.
 
+Because of the issue with pattern repetition in Beyoncé's music, other text analysis methods -- like a focus on bigrams and measures of tf or tf-idf were not applicable.
+
 However, beyond the fundamental restrictions of using text analysis of music, it is clear that “love” is a central theme of Beyoncé’s music. It is the most frequent word across Beyoncé’s discography and in _Lemonade_ specifically. Of course, the word suffers from the same issue as in “Run the World (Girls)” and “Freedom (ft. Kendrick Lamar)”. “Love” is in the central pattern of a number of her songs, including “Love on Top”, “Crazy in Love (feat. Jay-Z)” – two of her most well known songs – and in “Love Drought” in _Lemonade_. In this case, we are less concerned with the confounding impact of the song pattern, because the word “love” appears in the central pattern of multiple songs, as well as smaller instances in other songs. Female empowerment is another theme visible in the word frequency visualisations.
 
 There are many themes central to Beyoncé’s discography and to _Lemonade_ that do not appear in the word frequency visualisations. Most notably, her focus on pride and reclaiming of her Black heritage is not visible. This theme can be readily interpreted from the music and visual accompaniments of _Lemonade_. Text analysis does not offer us the full picture, in this instance.
@@ -265,7 +267,7 @@ And, just like with Beyoncé’s songs, text analysis is uniquely inadequate for
 
 Regardless of these restrictions, looking past the stop words in the reference of rap music, differences between the set and subset of Jay-Z’s music appear. _4:44_, compared to all Jay-Z songs, touches on themes related to Jay-Z’s infamous infidelity: “family” and “legacy”. Just like with Beyoncé’s music, however, such an ascription is faulty; the song “Legacy” in _4:44_ contains “legacy” 16 times.
 
-And, similarly to Beyoncé, Jay-Z’s most frequent word of meaning is “love”. These two artists, despite having vastly different styles and belonging to different genres of music, still base their music on the same central theme. And, despite the narrative of struggling with infidelity that both _Lemonade_ and _4:44_ grapple with, they are both still about
+And, similarly to Beyoncé, Jay-Z’s most frequent word of meaning is “love”. These two artists, despite having vastly different styles and belonging to different genres of music, still base their music on the same central theme. And, despite the narrative of struggling with infidelity that both _Lemonade_ and _4:44_ grapple with, they are both still about love. 
 
 
 
@@ -348,7 +350,7 @@ ggplot(data=B_and_J, aes(x=peak_position
 
 ```
 
-Something we can see from this chart is that Beyoncé fares better in album performance between the two. While Beyoncé is a superstar, her success can be related to her pop genre music and previous work in Destiny's Child. Beyoncé is a singer in a much more mainstream and commercialized genre of music than Jay Z is. Even though Jay Z may not seem to be as successful in album sales as Beyoncé, he is a rapper and hip-hop has not been treated in the same regard as pop music has. 
+Something we can easily see from this chart is that Beyoncé fares better in album performance. While Beyoncé is indeed a superstar, her success could be attributed to her pop genre music and previous work in Destiny's Child. Beyoncé is a singer, in a much more mainstream and commercialized genre of music than Jay Z is. Even though Jay Z may not seem to be as successful in album sales as Beyoncé, he is a rapper. Hip-hop has not been treated in the same mainstream regard as pop music has been. 
 
 ```{r, echo=FALSE, warning=F, message=F}
 Beyonce %>%
@@ -374,7 +376,7 @@ Beyonce %>%
     
 ```
 
-Beyoncé's albums have always fared well. All 6 of her studio albums are chart toppers. One thing to note is that while this visualization might give one the sense that Beyoncé hasn't made it big since _I am Sasha Fierce_, that is untrue. Beyoncé has only become more popular and more critically acclaimed. _Lemonade_ is Beyoncé's most critically acclaimed album. 'It is the introduction of her own streaming service, Tidal, which distorted the chart performance of her latest studio album _Lemonade_. Because Tidal is a much smaller and more niche market, the success of her album may not be depicted fully in these charts.
+Beyoncé's albums have always fared well. All 6 of her studio albums are chart toppers. One thing to note is that while this visualization might indicate that Beyoncé hasn't made it big since _I am Sasha Fierce_, that is untrue. Beyoncé has only become more popular and more critically acclaimed. _Lemonade_ is Beyoncé's most critically acclaimed album. It is the introduction of her own streaming service, Tidal, which distorted the chart performance of her latest studio album, _Lemonade_. Because Tidal is a much smaller and more niche market, the success of her album may not be fully depicted in these charts.
 
 ```{r, echo=FALSE, warning=F, message=F}
 JayZ %>%
@@ -397,7 +399,7 @@ JayZ %>%
 
 ```
 
-This visualization shows the evolution of Jay Z's chart performance. While the visualization shows that Jay Z has been on an upward trend, I'd like to note that this is not reflective of his success and fame. As a hip-hop artist, Jay Z would not fare well against pop music counterparts, especially because hip-hop has only become more mainstream in recent years. Another thing to note is that Jay Z almost exclusively released his music on his own streaming service, Tidal. He only released music on Spotify and Apple Music years later. This might affect how well his album performs on charts, despite his immense popularity.
+This visualization shows the evolution of Jay Z's chart performance. While Jay Z has followed an upward trend, we note that this is not reflective of his success and fame. As a hip-hop artist, Jay Z does not fare well against pop music counterparts, especially because hip-hop has only entered the mainstream in recent years. Another thing to note is that Jay Z almost exclusively released his music on his own streaming service, Tidal. He just released his discography on Spotify and Apple Music years later. This might affect how well his album performs on charts, despite his immense popularity.
 
 
 
@@ -556,7 +558,7 @@ hov$ordered_albums_hov <- ordered_albums_hov
 
 ```
 
-
+# Valence Analysis
 
 A statistic called valence exists in Spotify’s API, reflecting the “musical positivity” conveyed by a song. Higher valence numbers correspond to more positive sound, while lower valence numbers correspond to more negative sound. Valence is measured on a scale from 0 to 1, and the plots essentially reflect the density of an album in terms of different valence numbers. 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
@@ -618,11 +620,15 @@ Beyonce’s plots have been more balanced throughout the valence spectrum throug
 
 # Conclusion
 
+![](https://raw.githubusercontent.com/stat231-f20/Blog-Power-PUG-Girls/main/images/blog_pic2.png)
+
 Overall, we found a downward trend in sales performances for both artists, a steady trend in chart performance for Beyoncé, and an upward trend in chart performances for Jay-Z. However, we have three things to note. As mentioned, sales data is extremely difficult to acquire in the streaming age. Chart data functions in the same way. With the use of Tidal as a streaming service and album release platform for both artists, it is difficult to assess through charts and sales data on whether or not the duo is successful. 
 
 We say they are. There is an overwhelming number of sources that point to _Lemonade_ being Beyoncé’s most critically acclaimed album, and _4:44_ may be Jay-Z’s best reviewed project of the last decade . Since the release of their two respective and connected albums, the pair has released a collaborative album and completed another critically acclaimed world tour. We believe that Jay-Z and Beyoncé have been on the rise and charts and sales data are not complete depictions of how successful they are or will continue to become.
 
 Lastly, we determined that how often a song contains a word or phrase does not provide a good indicator of what an album or body of work is about. We think that a more literary, tailored approach to lyric analysis would provide more insight into the meaning behind the albums. However, it is necessary to consider that Beyoncé and Jay-Z consistently use “love” in all of their music and after using the Spotify API, we found that the duo also uses the same key for most of their songs. In their valence statistics, both artists displayed a similar evolutionary trend throughout their career, where their albums became more balanced in terms of valence. We think that the connection between their commonly used words and musical expressions, despite being artists in two different genres is notable. 
+
+A next step would be to conduct further research into text analysis, its shortcomings and biases, and what the best method of analyzing music could be.
 
 At the end of the day, Jay-Z and Beyoncé are the world’s most influential musical couple, which charts and sales cannot fully capture. However, the synchrony between the two artists, both lyrically and musically, further bolsters their legacies and is a major component of their continued success. 
 
