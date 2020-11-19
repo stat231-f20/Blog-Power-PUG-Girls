@@ -1,8 +1,10 @@
 ---
 title: "Beyonce & Jay Z Chart Visualizations-Grace"
 output:
+
   pdf_document: default
   html_document: default
+
 ---
 
 ```{r setup, include=FALSE}
@@ -13,18 +15,27 @@ library(robotstxt)
 library(stringr)
 library(dplyr)
 library(genius)
+
 library(bbcharts)
+
 library(ggplot2)
 library(data.table)
 library(forcats)
 library(extrafont)
+
+library(ggrepel)
+library(ggimage)
+
 ```
 
 
 ```{r}
 path_in <- "/home/class21/gcho21/git/Blog-Power-PUG-Girls"
-Beyonce <- read_csv(paste0(path_in,"/Beyonce.csv"))
-JayZ <- read_csv(paste0(path_in,"/JayZ.csv"))
+
+Beyonce <- read_csv(paste0(path_in,"/Beyonce_Chart.csv")) %>%
+  mutate(peak_position = as.numeric(peak_position))
+JayZ <- read_csv(paste0(path_in,"/JayZ_Chart.csv")) %>%
+  mutate(peak_position = as.numeric(peak_position))
 
 Beyonce$artist <- c('Beyonce')
 JayZ$artist <- c('Jay Z')
@@ -46,6 +57,7 @@ Beyonce$weeks_number_one <- vec1
 JayZ$weeks_on_chart <- vec_j
 JayZ$weeks_number_one <-vec_2
 
+
 B_and_J <- rbind(Beyonce, JayZ)
 
 
@@ -59,6 +71,29 @@ ggplot(B_and_J, aes(x=peak_position, y=weeks_on_chart, color = artist)) +
     ylab('Number of Weeks on Chart') + 
     ggtitle('How do Beyonce and Jay Z Matchup?')+
     theme_minimal()+
+    theme(text=element_text(family="Times New Roman", size=11)) 
+
+B_and_J <- rbind(Beyonce, JayZ) %>%
+  mutate(albums2 =  str_trim(str_replace_all(albums,"[\r|\n]", "")))
+
+# even with repel, titles of albums are too big to visualize all
+# could label a subset?
+# this is taking a random sample to label, although you might want to
+# specify a specific subset
+randsamp <- sample(x=B_and_J$albums2, size=10, replace=FALSE)
+B_and_J_subset <- B_and_J %>%
+  filter(albums2 %in% randsamp)
+
+ggplot(data=B_and_J, aes(x=peak_position
+                         , y=weeks_on_chart, color = artist)) +
+  geom_point() + # Show dots
+  geom_label_repel(data = B_and_J_subset
+                   , aes(label = albums2,fill=artist)
+                   , color="black", fontface="bold", size = 2) +
+    xlab('Peak Position of Album on UK Albums Chart') +
+    ylab('Number of Weeks on Chart') + 
+    ggtitle('How do Beyonce and Jay Z Matchup?')+
+    theme_minimal() +
     theme(text=element_text(family="Times New Roman", size=11)) +
     theme(plot.title = element_text(size = 15, face = "bold",
                                   margin = margin(10, 0, 10, 0))) +
@@ -66,7 +101,7 @@ ggplot(B_and_J, aes(x=peak_position, y=weeks_on_chart, color = artist)) +
 
 
 ```
-
+Something we can see from this chart is that Beyoncé fares better in album performance between the two. While Beyoncé is a superstar, her success can be related to her pop genre music and previous work in Destiny's Child. Beyoncé is a singer in a much more mainstream and commercialized genre of music than Jay Z is. Even though Jay Z may not seem to be as successful in album sales as Beyoncé, he is a rapper and hip-hop has not been treated in the same regard as pop music has. 
 ## Including Plots
 
 You can also embed plots, for example:
@@ -84,7 +119,7 @@ Beyonce %>%
     theme(legend.position = 'right')
     
 ```
-
+Beyonce's albums have always fared well. All 6 of her studio albums are chart toppers. One thing to note is that while this visualization might give one the sense that Beyonce hasn't made it big since 'I am Sasha Fierce', that is untrue. Beyoncé has only become more popular and more critically acclaimed. It is the introduction of streaming services like Spotify, Apple Music, and Tidal that distort the authenticity of chart data. In this day, it is genuinely rare to find album sales.
 ```{r}
 JayZ %>%
   ggplot(aes(x=year, y = factor(peak_position, levels = rev(levels(factor(peak_position)))), fill = albums, color = albums, size = weeks_on_chart)) +
